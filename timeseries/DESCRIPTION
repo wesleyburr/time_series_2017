@@ -1,7 +1,7 @@
 Package: timeseries
 Title: Time Series Algorithms from MATH 4560H (Sp/Su 2017)
 Version: 0.0.1
-Authors@R: wesleyburr@trentu.ca
+Authors@R: wesleyburr@trentu.ca, skyegriffith@trentu.ca
 Description: A variety of time and frequency domain algorithms, implemented as part of the project for MATH 4560H in Sp/Su 2017 at Trent University
 Depends: R (>= 3.3.3)
 License: MIT
