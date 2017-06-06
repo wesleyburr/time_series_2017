@@ -1,0 +1,55 @@
+#
+# Carlone Scott
+# Time Series Assigment
+# Chapter 2
+# Prof Wesley Burr
+#
+
+# Question 9
+
+library("readr")
+deaths <- read.table("http://users.stat.umn.edu/~kb/classes/5932/data/deaths.txt")
+names(deaths) <- c("Month", "Year", "Counts")
+deaths <- data.frame(deaths, Index = 1:dim(deaths)[1])
+
+# Q1.9 - (a) - Plot
+plot(deaths$Index, deaths$Counts, type = "b", xlab = "Index, Months", ylab = "Counts")
+
+# Q1.9 - (b) - Fit seasonality
+fitA <- lm(Counts ~ as.factor(Month) - 1, data = deaths)
+summary(fitA)
+s_t <- predict(fitA)
+lines(deaths$Index, s_t, col = "red")
+
+# Q1.9 - (c) - Plot residuals
+deaths <- data.frame(deaths, Resid_after_st = deaths$Counts - s_t)
+plot(deaths$Index, deaths$Resid_after_st, type = "l", xlab = "Index, Months",
+     ylab = "Residual Counts")
+
+# Q1.9 - (d) - Fit m_t as a quadratic
+deaths <- data.frame(deaths, X = deaths$Index, X2 = deaths$Index^2)
+head(deaths)
+fitB <- lm(Resid_after_st ~ X + X2, data = deaths)
+
+plot(deaths$Index, deaths$Resid_after_st, type = "l", xlab = "Index, Months",
+     ylab = "Residual Counts")
+lines(deaths$Index, predict(fitB), col = "red")
+
+# Q1.9 - (e) - Plot residuals again
+deaths <- data.frame(deaths, Resid_after_mt = deaths$Resid_after_st - predict(fitB))
+
+plot(deaths$Index, deaths$Resid_after_mt, type = "b", xlab = "Index",
+     ylab = "Residual Counts after s_t and m_t")
+
+plot(deaths$Index, deaths$Counts, type = "b")
+lines(deaths$Index, deaths$Counts - deaths$Resid_after_mt, col = "red")
+lines(deaths$Index, deaths$Resid_after_mt + mean(deaths$Counts), col = "blue")
+
+# Q1.9 - (f) - compute ACF
+deaths <- data.frame(deaths, YtHat = deaths$Resid_after_mt)
+fitC <- acf(deaths$YtHat, lag.max = 20)
+
+1.96/sqrt(72)
+
+abline(a = 0.23098, b = 0, col = "yellow")
+
