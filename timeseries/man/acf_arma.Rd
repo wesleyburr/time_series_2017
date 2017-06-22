@@ -7,7 +7,7 @@
 acf_arma(phi, theta, lag = 20, dig = 5)
 }
 \arguments{
-\item{phi}{A vector, containing coefficient of AR part as array. it require to have 1 as leading coefficient.}
+\item{phi}{A vector, containing the **ACTUAL** (including "-" sign) coefficient of AR part as array. it require to have 1 as leading coefficient.}
 
 \item{theta}{A vector, containing coefficient of MA part as array. it require to have 1 as leading coefficient.}
 
@@ -51,6 +51,13 @@ theta <- c(1,rnorm(50))
 
 acf_arma(phi, theta)
 acf_arma(phi, theta, 10, 8)
+
+# MA process
+phi <- c(1)
+theta <- c(1,rnorm(10000))
+
+acf_arma(phi, theta)
+acf_arma(phi, theta, 20, 8)
 
 }
 \references{

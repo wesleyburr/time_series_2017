@@ -3,7 +3,7 @@
 #' @description The function acf_arma() computes estimates of the autocorrelation/autocoveriance up to given lag.
 #' @description It returns a data frame including lags, autocovariances and autocorellations.
 #'
-#' @param phi A vector, containing the ACTUAL!! (including "-" sign) coefficient of AR part as array. it require to have 1 as leading coefficient.
+#' @param phi A vector, containing the **ACTUAL** (including "-" sign) coefficient of AR part as array. it require to have 1 as leading coefficient.
 #' @param theta A vector, containing coefficient of MA part as array. it require to have 1 as leading coefficient.
 #' @param lag The desired maximun lag , The default value is 20.
 #' @param dig The desired rounding digit of return value, the default value is 5
@@ -59,13 +59,13 @@
 #
 
 acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
-  
+
   stopifnot(is.numeric( phi ), is.numeric( theta ),
             is.vector( phi ), is.vector( theta ),
             length( phi ) > 0, length( theta ) > 0,
             is.numeric(lag),
             is.numeric(dig), dig >= 1)
-  
+
   if (round(lag) != abs(lag)) {
     lag <- ceiling(abs(lag))
   }
@@ -78,7 +78,7 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
   if (theta[1] != 1) {
     stop( "Leading coefficient of THETA must be 1.")
   }
-  
+
   #
   # make sure it is casual
   #
@@ -87,13 +87,13 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
   #  warning( "Non casual ARMA, implementation might not be valid")
   #}
   #
-  
+
   #
   # we first find psi=theta/phi
   #
   p <- length( phi )
   q <- length( theta )
-  
+
   phi_1 <- c( phi, rep(0, max(q , lag) * 2) )
   theta_1 <- c( theta, rep(0,max(q , lag) * 2) )
   psi <- rep(0, max(q , lag))
@@ -105,11 +105,11 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
     # so we use "-" istead "+" it also cause some minor changes after)
   }
   #print(length(psi))
-  
+
   #
   # method 2 find lag 1:p
   #
-  
+
   #
   # Left hand side
   #
@@ -126,7 +126,7 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
     }
   }
   #print(l)
-  
+
   #
   # right hand side
   #
@@ -143,7 +143,7 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
     }
   }
   gam <- solve(l,r[1:p])
-  
+
   #
   # method 3, we use existence gamma to find the rest
   #
@@ -172,7 +172,8 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
 # theta <- c(1, 1)
 
 # phi <- c(1, rnorm(10))
-# theta <- c(1,rnorm(50))
+# theta <- c(1,rnorm(500))
+# acf_arma(phi, theta, 20, 10)
 
 # closed form formular from book in p93
 # testgamma <- rep(0, 21)
@@ -189,15 +190,15 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
 
 
 #Test for MA process
-phi <- c(1)
-theta <- c(1,rnorm(10000))
-lag <- 20
-cov <- rep(0 , lag)
-cov[1] <- sum(theta * theta)
-for (i in 2:(lag+1)) {
-  cov[i] <- sum(theta[c(i:length(theta))] * theta[c(1:(length(theta)-i+1))])
-}
-test2 <- data.frame(lags = 0:lag, gamma = cov , rho = cov/cov[1])
-test1 <- acf_arma(phi, theta, 20, 10)
-test1$data-test2
+#phi <- c(1)
+#theta <- c(1,rnorm(10000))
+#lag <- 20
+#cov <- rep(0 , lag)
+#cov[1] <- sum(theta * theta)
+#for (i in 2:(lag+1)) {
+#  cov[i] <- sum(theta[c(i:length(theta))] * theta[c(1:(length(theta)-i+1))])
+#}
+#test2 <- data.frame(lags = 0:lag, gamma = cov , rho = cov/cov[1])
+#test1 <- acf_arma(phi, theta, 20, 10)
+#test1$data-test2
 
