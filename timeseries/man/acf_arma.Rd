@@ -6,7 +6,7 @@ Autocorrelation function estimation for casual ARMA(p,q) process: acf_arma()
 }
 \description{
 The function acf_arma() computes estimates of the autocorrelation/autocoveriance up to given lag.
-It retruns a data frame contain lag (lags), autocovariance (gamma) and autocorrelation (rho). 
+It retruns a data frame contain lag (lags), autocovariance (gamma) and autocorrelation (rho).
 }
 \usage{
 acf_arma <- function( phi, theta, lag = 20, dig = 5 )
@@ -14,7 +14,7 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 )
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{phi}{A vector, containing coefficient of AR part as array. it require to have 1 as leading coefficient}
-  \item{theta}{A vector, containing coefficient of MA part as array. it require to have 1 as leading coefficient}	
+  \item{theta}{A vector, containing coefficient of MA part as array. it require to have 1 as leading coefficient}
   \item{lag}{the desired maximun lag , The default value is 20.}
   \item{dig}{the desired rounding digit of return value, the default value is 5}
 }
@@ -43,7 +43,7 @@ Brockwell, P. J., & Davis, R. A. (2013). Time series: theory and methods. New Yo
 \author{
 Ankai Liu
 }
-Melissa Van Bussel, Carlone Scott, Skye Griffith, Steph Johnson, Mark Weygang, Ankai Liu, Sam Leigh, Wesley Burr. 
+Melissa Van Bussel, Carlone Scott, Skye Griffith, Steph Johnson, Mark Weygang, Ankai Liu, Sam Leigh, Wesley Burr.
 \note{
 %%  ~~further notes~~
 }
@@ -60,14 +60,14 @@ xd
 phi <- c(1, -1, 1 / 4)
 theta <- c(1, 1)
 
-# Use acf_arma function 
+# Use acf_arma function
 acf_arma(phi, theta)
 acf_arma(phi, theta, 20, 8)
 
 # Another example
 phi <- c(1, rnorm(100))
 theta <- c(1,rnorm(50))
- 
+
 acf_arma(phi, theta)
 acf_arma(phi, theta, 10, 8)
 }
