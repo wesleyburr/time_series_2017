@@ -96,7 +96,7 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
 
   phi_1 <- c( phi, rep(0, max(q , lag) * 2) )
   theta_1 <- c( theta, rep(0,max(q , lag) * 2) )
-  psi <- rep(0, max(q , lag))
+  psi <- c()
   psi[1] <- theta_1[1]
   for (i in 2:max(q , lag)) {
     psi[i] <- theta_1[i] - sum(psi[1:(i - 1)] * phi_1[i:2])
@@ -130,7 +130,7 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
   #
   # right hand side
   #
-  r <- rep(0,p)
+  r <- c()
   for (i in 1:max(p,q+1)) {
     #
     # we only need right hand side up to p. and we make the rest 0
@@ -193,7 +193,7 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
 #phi <- c(1)
 #theta <- c(1,rnorm(10000))
 #lag <- 20
-#cov <- rep(0 , lag)
+#cov <- c()
 #cov[1] <- sum(theta * theta)
 #for (i in 2:(lag+1)) {
 #  cov[i] <- sum(theta[c(i:length(theta))] * theta[c(1:(length(theta)-i+1))])
