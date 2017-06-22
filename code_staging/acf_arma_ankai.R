@@ -149,7 +149,13 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
   #
   if ( (p - 1 ) < lag ) {
     for (i in (p + 1):(lag + 1)) {
-      g <- - sum(phi[-1] * gam[(i - 1):(i - p + 1)]) + r[i]
+      
+      if (is.na(r[i])) {
+        g <- - sum(phi[-1] * gam[(i - 1):(i - p + 1)])
+      }
+      else {
+        g <- - sum(phi[-1] * gam[(i - 1):(i - p + 1)]) + r[i]
+      }
       gam <- c(gam, g)
     }
   }
@@ -162,7 +168,7 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
   output <- list("data" = data)
   return(output)
 }
-
+#acf_arma(phi, theta, 20, 10)
 
 
 #
@@ -170,23 +176,22 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
 #
 # phi <- c(1, -1, 1 / 4)
 # theta <- c(1, 1)
-
+#
 # phi <- c(1, rnorm(10))
 # theta <- c(1,rnorm(500))
 # acf_arma(phi, theta, 20, 10)
 
 # closed form formular from book in p93
-# testgamma <- rep(0, 21)
+# testgamma <- c()
 # for (i in 1:21) {
 #   testgamma[i] <- (32 / 3 + 8 * (i - 1)) * 2^(- i + 1)
-# }
+#}
 # testrho <- testgamma / testgamma[1]
 # test1 <- data.frame(lag=0:20, gamma=testgamma,rho=testrho)
-# test1
-
+# 
 # test2 <- acf_arma(phi, theta, 20, 10)
 # test1-test2$data
-
+# test2
 
 
 #Test for MA process
