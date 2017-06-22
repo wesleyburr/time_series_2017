@@ -3,7 +3,7 @@
 #' @description The function acf_arma() computes estimates of the autocorrelation/autocoveriance up to given lag.
 #' @description It returns a data frame including lags, autocovariances and autocorellations.
 #'
-#' @param phi A vector, containing coefficient of AR part as array. it require to have 1 as leading coefficient.
+#' @param phi A vector, containing the ACTUAL!! (including "-" sign) coefficient of AR part as array. it require to have 1 as leading coefficient.
 #' @param theta A vector, containing coefficient of MA part as array. it require to have 1 as leading coefficient.
 #' @param lag The desired maximun lag , The default value is 20.
 #' @param dig The desired rounding digit of return value, the default value is 5
@@ -95,7 +95,7 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
     psi[i] <- theta_1[i] - sum(psi[1:(i - 1)] * phi_1[i:2])
     # here becaues the phi here is the actual coefficient
     # (include the negative sign in front of it.)
-    # so we use "-" istead "+)
+    # so we use "-" istead "+" it also cause some minor changes after)
   }
   #print(psi)
   #print(length(psi))
