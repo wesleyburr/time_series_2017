@@ -155,7 +155,7 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
   output <- list("data" = data)
   return(output)
 }
-acf_arma(phi, theta, 20, 10)
+#acf_arma(phi, theta, 20, 10)
 
 #
 # test acf
