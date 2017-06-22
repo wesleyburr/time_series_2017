@@ -39,6 +39,13 @@
 #' acf_arma(phi, theta)
 #' acf_arma(phi, theta, 10, 8)
 #'
+#' # MA process
+#' phi <- c(1)
+#' theta <- c(1,rnorm(10000))
+#'
+#' acf_arma(phi, theta)
+#' acf_arma(phi, theta, 20, 8)
+#'
 #' @export
 #' @importFrom grDevices rgb2hsv
 #' @importFrom graphics par plot rect text
@@ -52,13 +59,13 @@
 #
 
 acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
-
+  
   stopifnot(is.numeric( phi ), is.numeric( theta ),
             is.vector( phi ), is.vector( theta ),
             length( phi ) > 0, length( theta ) > 0,
             is.numeric(lag),
             is.numeric(dig), dig >= 1)
-
+  
   if (round(lag) != abs(lag)) {
     lag <- ceiling(abs(lag))
   }
@@ -71,7 +78,7 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
   if (theta[1] != 1) {
     stop( "Leading coefficient of THETA must be 1.")
   }
-
+  
   #
   # make sure it is casual
   #
@@ -80,13 +87,13 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
   #  warning( "Non casual ARMA, implementation might not be valid")
   #}
   #
-
+  
   #
   # we first find psi=theta/phi
   #
   p <- length( phi )
   q <- length( theta )
-
+  
   phi_1 <- c( phi, rep(0, max(q , lag) * 2) )
   theta_1 <- c( theta, rep(0,max(q , lag) * 2) )
   psi <- rep(0, max(q , lag))
@@ -97,52 +104,52 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
     # (include the negative sign in front of it.)
     # so we use "-" istead "+" it also cause some minor changes after)
   }
-  #print(psi)
   #print(length(psi))
-
+  
   #
   # method 2 find lag 1:p
   #
-
+  
   #
   # Left hand side
   #
-  phi_2 <- c(rep(0,p),phi,rep(0,2 * p))
-  l <- matrix(c(phi_2[(p + 1):(2 * p)],rep(0,(p)^2 - p)),nrow=p,ncol=p,byrow=FALSE)
-  for (i in 1:p) {
-    for (j in 2:p) {
-      l[i,j] <- phi_2[p + i - (j - 1)]+phi_2[p + i + (j - 1)]
-      #print(phi_2[p - 1 + i - (j - 1)])
-      #print(phi_2[p - 1 + i + (j - 1)])
+  if (p == 1) {
+    l <- 1
+  }
+  else {
+    phi_2 <- c(rep(0,p),phi,rep(0,3 * p))
+    l <- matrix(c(phi_2[(p + 1):(2 * p)],rep(0,(p)^2 - p)),nrow=p,ncol=p,byrow=FALSE)
+    for (i in 1:p) {
+      for (j in 2:p) { #here we can see it does not work for AR
+        l[i,j] <- phi_2[p + i - (j - 1)]+phi_2[p + i + (j - 1)]
+      }
     }
   }
   #print(l)
-
+  
   #
   # right hand side
   #
   r <- rep(0,p)
-  for (i in 1:p) {
+  for (i in 1:max(p,q+1)) {
     #
     # we only need right hand side up to p. and we make the rest 0
     #
     if ( i <= q ) {
       r[i] <- sum(psi[1:(q - i + 1)] * theta[i:q])
-      #print(psi[1:(q - i + 1)])
     }
     else {
       r[i] <- 0
     }
   }
-  #print(r)
-  gam <- solve(l,r)
-
+  gam <- solve(l,r[1:p])
+  
   #
   # method 3, we use existence gamma to find the rest
   #
   if ( (p - 1 ) < lag ) {
     for (i in (p + 1):(lag + 1)) {
-      g <- - sum(phi[-1] * gam[(i - 1):(i - p + 1)])
+      g <- - sum(phi[-1] * gam[(i - 1):(i - p + 1)]) + r[i]
       gam <- c(gam, g)
     }
   }
@@ -155,7 +162,8 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
   output <- list("data" = data)
   return(output)
 }
-#acf_arma(phi, theta, 20, 10)
+
+
 
 #
 # test acf
@@ -177,4 +185,19 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
 
 # test2 <- acf_arma(phi, theta, 20, 10)
 # test1-test2$data
+
+
+
+#Test for MA process
+phi <- c(1)
+theta <- c(1,rnorm(10000))
+lag <- 20
+cov <- rep(0 , lag)
+cov[1] <- sum(theta * theta)
+for (i in 2:(lag+1)) {
+  cov[i] <- sum(theta[c(i:length(theta))] * theta[c(1:(length(theta)-i+1))])
+}
+test2 <- data.frame(lags = 0:lag, gamma = cov , rho = cov/cov[1])
+test1 <- acf_arma(phi, theta, 20, 10)
+test1$data-test2
 
