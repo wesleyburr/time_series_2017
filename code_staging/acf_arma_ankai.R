@@ -177,9 +177,9 @@ acf_arma <- function( phi, theta, lag = 20, dig = 5 ) {
 # phi <- c(1, -1, 1 / 4)
 # theta <- c(1, 1)
 #
-# phi <- c(1, rnorm(500)/10^7)
-# theta <- c(1:5000)
-# acf_arma(phi, theta, 20, 8)
+# phi <- c(1,rnorm(500))
+# theta <- c(1)
+# acf_arma(phi, theta, 20, 10)
 
 # closed form formular from book in p93
 # testgamma <- c()
