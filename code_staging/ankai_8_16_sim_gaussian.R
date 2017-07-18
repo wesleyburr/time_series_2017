@@ -119,7 +119,7 @@ sgp <- function(k, np) {
   # *** here we might have negatice v and cause problems
   #
   
-  coe <- c(coe, v[np])
+  coe <- c(coe, v[np]^(1/2))
   return(coe)
 }
 
