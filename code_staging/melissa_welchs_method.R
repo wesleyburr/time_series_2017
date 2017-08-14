@@ -18,8 +18,10 @@
     
     # split the time series
     splitup <- splitWithOverlap(x, seglength, overlap)
-    splitup <- splitup[1:(length(splitup)-1)] # for some reason the splitWithOverlap function creates one too many segments
+    first_bad <- min(which(unlist(lapply(splitup, FUN = length)) < seglength))
+    splitup <- splitup[1:first_bad]
     L <- length(splitup) # how many segments are there?
+    splitup[[L]] <- x[(length(x)-seglength+1):length(x)]
     
     # create a Welch window function, whose definition was found on Wikipedia. 
     welch_window <- function(N) {
