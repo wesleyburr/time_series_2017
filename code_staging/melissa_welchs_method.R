@@ -60,7 +60,7 @@
              
     # finally, plot the average of all the periodograms
     combined_periodogram <- plot(freq, S, type = "h", ylab = "average of log(I(lambda))", 
-                                 lwd = 2, main = "Averaged Periodogram from Welch's Method"
+                                 lwd = 2, main = "Averaged Periodogram from Welch's Method",
                                  log = 'y')
     
     # return a list
