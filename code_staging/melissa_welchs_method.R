@@ -37,9 +37,10 @@
     
     # calculate the periodogram for each of the segments 
     M <- length(splitup[[1]]) # what is the length of each segment? basically redefine seglength
-    freq <- (0:(M/2))/M
     zerop <- 2^(ceiling(log(M, 2)) + 1) - M
+    nFFT <- zerop + M
     w <- (zerop+M)/2 + 1 # time to calculate the periodograms for each of the segments 
+    freq <- (0:(nFFT/2))/nFFT
              
     # Zero-padding, re-phrasing
     splitup <- lapply(splitup, FUN = function(x) { c(x, rep(0, zerop)) })
@@ -61,11 +62,11 @@
     S <- Reduce("+", S) / L
              
     # finally, plot the average of all the periodograms
-    combined_periodogram <- plot(freq, S, type = "h", ylab = "average of log(I(lambda))", 
+    combined_periodogram <- plot(freq, S, type = "l", ylab = "average of log(I(lambda))", 
                                  lwd = 2, main = "Averaged Periodogram from Welch's Method",
                                  log = 'y')
     
     # return a list
-    list(combined_periodogram, L)
+    list(S, freq, L)
   }
   
