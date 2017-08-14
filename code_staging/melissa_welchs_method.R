@@ -34,26 +34,36 @@
     }
     
     # calculate the periodogram for each of the segments 
-    N <- length(splitup[[1]]) # what is the length of each segment? basically redefine seglength
-    w <- N/2 + 1 # time to calculate the periodograms for each of the segments 
-    freq <- (0:(N/2))/N
-    P <- list()
-    meanP <- matrix(data = NA, nrow = w, ncol = L) 
-    meanvector <- vector(length = w)
-    for (k in 1:w) {
-      for (i in 1:L) {
-        dft <- abs(fft(splitup[[i]])/sqrt(N))^2
-        P[[i]] <- (4/N)*dft[1:w]
-        meanP[k,i] <- P[[i]][k]
-        meanvector[k] <- mean(meanP[k,])
-      } }
-    
-    # calculate maximum frequency to choose ylim for the combined periodogram plot 
-    maximumfreq <- max(meanvector[2:length(meanvector)])
+    M <- length(splitup[[1]]) # what is the length of each segment? basically redefine seglength
+    freq <- (0:(M/2))/M
+    zerop <- 2^(ceiling(log(M, 2)) + 1) - M
+    w <- (zerop+M)/2 + 1 # time to calculate the periodograms for each of the segments 
+             
+    # Zero-padding, re-phrasing
+    splitup <- lapply(splitup, FUN = function(x) { c(x, rep(0, zerop)) })
+             
+    # P <- list()
+    # meanP <- matrix(data = NA, nrow = w, ncol = L) 
+    # meanvector <- vector(length = w)
+    # for (k in 1:w) {
+    #  for (i in 1:L) {
+    #    dft <- abs(fft(splitup[[i]])/sqrt(N))^2
+    #    P[[i]] <- (4/N)*dft[1:w]
+    #    meanP[k,i] <- P[[i]][k]
+    #    meanvector[k] <- mean(meanP[k,])
+    #  } }
+    S <- vector("list", length = L)   
+    for(i in 1:L) {
+      S[[i]] <- (4/M) * (abs(fft(splitup[[i]])/sqrt(M))^2)[1:w]
+    }
+    S <- Reduce("+", S) / L
+             
     # finally, plot the average of all the periodograms
-    combined_periodogram <- plot(freq, meanvector, ylim = c(0, maximumfreq*1.2), type = "h", xlim = c(0.02, 0.5), ylab = "average of log(I(lambda))", lwd = 2, main = "Averaged Periodogram from Welch's Method")
+    combined_periodogram <- plot(freq, S, type = "h", ylab = "average of log(I(lambda))", 
+                                 lwd = 2, main = "Averaged Periodogram from Welch's Method"
+                                 log = 'y')
     
     # return a list
-    list(combined_periodogram, maximumfreq, L)
+    list(combined_periodogram, L)
   }
   
