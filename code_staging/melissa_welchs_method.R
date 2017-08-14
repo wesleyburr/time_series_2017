@@ -57,7 +57,7 @@
     #  } }
     S <- vector("list", length = L)   
     for(i in 1:L) {
-      S[[i]] <- (4/M) * (abs(fft(splitup[[i]])/sqrt(M))^2)[1:w]
+      S[[i]] <- (1 / sqrt(M)) * (abs(fft(splitup[[i]]))^2)[1:w]
     }
     S <- Reduce("+", S) / L
              
@@ -67,6 +67,6 @@
                                  log = 'y')
     
     # return a list
-    list(S, freq, L)
+    list(freq = freq, spec = S, nseg = L)
   }
   
