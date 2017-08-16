@@ -18,8 +18,10 @@
     
     # split the time series
     splitup <- splitWithOverlap(x, seglength, overlap)
-    splitup <- splitup[1:(length(splitup)-1)] # for some reason the splitWithOverlap function creates one too many segments
+    first_bad <- min(which(unlist(lapply(splitup, FUN = length)) < seglength))
+    splitup <- splitup[1:first_bad]
     L <- length(splitup) # how many segments are there?
+    splitup[[L]] <- x[(length(x)-seglength+1):length(x)]
     
     # create a Welch window function, whose definition was found on Wikipedia. 
     welch_window <- function(N) {
@@ -34,26 +36,37 @@
     }
     
     # calculate the periodogram for each of the segments 
-    N <- length(splitup[[1]]) # what is the length of each segment? basically redefine seglength
-    w <- N/2 + 1 # time to calculate the periodograms for each of the segments 
-    freq <- (0:(N/2))/N
-    P <- list()
-    meanP <- matrix(data = NA, nrow = w, ncol = L) 
-    meanvector <- vector(length = w)
-    for (k in 1:w) {
-      for (i in 1:L) {
-        dft <- abs(fft(splitup[[i]])/sqrt(N))^2
-        P[[i]] <- (4/N)*dft[1:w]
-        meanP[k,i] <- P[[i]][k]
-        meanvector[k] <- mean(meanP[k,])
-      } }
-    
-    # calculate maximum frequency to choose ylim for the combined periodogram plot 
-    maximumfreq <- max(meanvector[2:length(meanvector)])
+    M <- length(splitup[[1]]) # what is the length of each segment? basically redefine seglength
+    zerop <- 2^(ceiling(log(M, 2)) + 1) - M
+    nFFT <- zerop + M
+    w <- (zerop+M)/2 + 1 # time to calculate the periodograms for each of the segments 
+    freq <- (0:(nFFT/2))/nFFT
+             
+    # Zero-padding, re-phrasing
+    splitup <- lapply(splitup, FUN = function(x) { c(x, rep(0, zerop)) })
+             
+    # P <- list()
+    # meanP <- matrix(data = NA, nrow = w, ncol = L) 
+    # meanvector <- vector(length = w)
+    # for (k in 1:w) {
+    #  for (i in 1:L) {
+    #    dft <- abs(fft(splitup[[i]])/sqrt(N))^2
+    #    P[[i]] <- (4/N)*dft[1:w]
+    #    meanP[k,i] <- P[[i]][k]
+    #    meanvector[k] <- mean(meanP[k,])
+    #  } }
+    S <- vector("list", length = L)   
+    for(i in 1:L) {
+      S[[i]] <- (1 / sqrt(M)) * (abs(fft(splitup[[i]]))^2)[1:w]
+    }
+    S <- Reduce("+", S) / L
+             
     # finally, plot the average of all the periodograms
-    combined_periodogram <- plot(freq, meanvector, ylim = c(0, maximumfreq*1.2), type = "h", xlim = c(0.02, 0.5), ylab = "average of log(I(lambda))", lwd = 2, main = "Averaged Periodogram from Welch's Method")
+    combined_periodogram <- plot(freq, S, type = "l", ylab = "average of log(I(lambda))", 
+                                 lwd = 2, main = "Averaged Periodogram from Welch's Method",
+                                 log = 'y')
     
     # return a list
-    list(combined_periodogram, maximumfreq, L)
+    list(freq = freq, spec = S, nseg = L)
   }
   
