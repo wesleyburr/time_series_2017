@@ -1,4 +1,5 @@
 bartletts_method <- function(x, segments) {
+  library(data.table)
   # Catches
   stopifnot(is.numeric(x), length(x) > 1)
   if (!is.ts(x)) {
@@ -8,27 +9,32 @@ bartletts_method <- function(x, segments) {
   n <- length(x)
   # check if the time series can be divided evenly into the number of segments given, fix it if not.
   if (n %% segments != 0) {
-    x <- x[1:((floor(n / segments))*segments)]
-    warning("length of time series not a multiple of segments, points were cut off at end")
+    x <- c(x, rep(0, n %% segments))
+    warning("length of time series not a multiple of segments, zeroes were added at end")
   }
+  
+  # Reassign length and find frequency
+  name <- deparse(substitute(x))
+  xfreq <- frequency(x)
+  
   f <- 1:segments
   splitup <- split(x, f) # splits the time series into the number of specified segments 
   N <- length(splitup$`1`) # what is the length of each segment?
   w <- N/2 + 1 # time to calculate the periodograms for each of the segments 
-  freq <- (0:(N/2))/N
+  freq <- seq.int(from = xfreq/N, by = xfreq/N, length.out = w) # frequency for x axis 
   P <- list()
-  meanP <- matrix(data = NA, nrow = w, ncol = segments) 
   meanvector <- vector(length = w)
-  for (k in 1:w) {
+  for(k in 1:w) {  
     for (i in 1:segments) {
       dft <- abs(fft(splitup[[i]])/sqrt(N))^2
-      P[[i]] <- (4/N)*dft[1:w]
-      meanP[k,i] <- P[[i]][k]
-      meanvector[k] <- mean(meanP[k,])
-    } }
-  # calculate maximum frequency to choose ylim for the combined periodogram plot 
-  maximumfreq <- max(meanvector[2:length(meanvector)])
-  # finally, plot the average of all the periodograms
-  combined_periodogram <- plot(freq, meanvector, ylim = c(0, maximumfreq*1.5), type = "h", xlim = c(0.02, 0.5), ylab = "average of I(lambda)", lwd = 2, main = "Averaged Periodogram from Bartlett's Method")
-  list(combined_periodogram, maximumfreq, N)
+      P[[i]] <- dft[1:w]
+      Q <- transpose(P)
+      meanvector[k] <- mean(Q[[k]])
+    } 
+  }
+  
+  plot(freq, log(meanvector), type = "l",
+       xlab = "frequency", ylab = "log(averaged periodogram value)",
+       main = paste("Averaged periodogram of", name,"dataset using Bartlett's Method", sep = " "),
+       cex.main = 0.8)
 }

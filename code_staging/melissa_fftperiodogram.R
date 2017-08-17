@@ -1,35 +1,32 @@
-fftperiodogram <- function(x, seconds) {
+fftperiodogram <- function(x, xfreq = frequency(x)) {
   # Catches and warnings 
-  stopifnot(is.numeric(x), length(x) > 0, seconds >= 0, is.numeric(seconds))
-  warning(if(length(x) %% 2 == 1) {
-    print("Must have even number of points; first point was removed")
-  })
+  stopifnot(is.numeric(x), length(x) > 0, is.numeric(xfreq))
   
-  # Ensure length of time series is an even number; requirement for R's fft function
+  name <- deparse(substitute(x))
   n <- length(x)
-  if(n %% 2 == 1) {
-    x <- x[0:(n-1)]
-    n <- length(x)
-  }
+  xfreq <- frequency(x)
+  Nspec <- floor(n/2)
+  freq <- seq.int(from = xfreq/n, by = xfreq/n, length.out = Nspec)
+ 
+  # Zero-pad the series 
+  zeropad <- 2^(ceiling(log(N, 2)) + 1) - N
+  x <- c(x, rep(0, zeropad))
   
-  # Calculate the discrete fourier transform
-  dft <- abs(fft(x)/sqrt(n))^2
-  w <- n/2 + 1
-  P <- (4/n)*dft[1:w]
-  freq <- (0:(n/2))/n
+  # Reassign length of series 
+  N <- length(x)
+  w <- N/2 + 1
   
-  # Calculate the frequency at which the maximum value occurs in the periodogram and print out the corresponding period
-  maximumfreq <- max(P[2:length(P)])
-  location <- which(P[1:length(P)] >= maximumfreq)
-  period <- 1/freq[location[2]]
-  sentence <- paste("There appears to be a pattern around every", period*seconds, "seconds, which is", period*seconds/(86400*365), "years", sep = " ")
+  # Calculate periodogram and plot it
+  dft <- (1/sqrt(N))*(abs(fft(x))^2)[1:w]
+  dft <- log(dft)
+  periodogramplot <- plot(freq, dft[1:Nspec], type = "l", lwd = 1, main = paste("Periodogram of", name, "dataset", sep = " "), 
+                          xlab = "Frequency",
+                          ylab = "log of periodogram",
+                          cex.main = 0.8)
   
-  # Finally, plot the periodogram
-  periodogram_plot <- plot(freq, P, type = "h", lwd = 2, xlab = "frequency", ylab = "I(lambda)", xlim = c(0.019, 0.5), ylim = c(0, maximumfreq + 10), 
-                           main = "Periodogram")
-  
-  # Make a list of the things that the function should return, and return it  
-  periodogram_return <- list(sentence, periodogram_plot)
+  # Find frequency at which maximum value occurs
+  freq_which_max <- freq[max(dft[2:length(dft)])]
+  periodogram_return <- list(plot = periodogramplot, freq_which_max = freq_which_max)
   return(periodogram_return)
 }
 
