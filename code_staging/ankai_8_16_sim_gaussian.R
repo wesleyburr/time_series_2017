@@ -1,25 +1,58 @@
 #' @title the Innovation Algoritghm and simulation of Gaussian process
 #'
-#' @description 
+#' @description The function ina() computes coefficient of the prediction of n+1 step as linear sun of 0 to n steps.
+#' @description The input require autocovariance matrix
+#' @description As return, the theta COLUMN index i representing the prediction of x_i (theta_{i-1,-}) and v is a error for corresponding prediction from v_0 to v_{n-1}
+#'   
 #' 
-#' 
-#' @param 
 #'
-#' @return 
 #'
-#' @note This function STRONGLY REQUIRE arma process to be causal.
+#' @param k autocovariance matrix for given time series
+#'
+#' @return v       (error)
+#' @return theta     (prediction coefficients)
 #'
 #' @author Ankai Liu, \email{ankailiu@trentu.ca}
-#' @references Brockwell, P. J., & Davis, R. A. (2013). Time series: theory and methods. New York, NY: Springer.
+#' @references Brockwell, P. J., & Davis, R. A. (2013). Time series: theory and methods. New York, NY: Springer. p172 proposition 5.2.2
 #' @seealso None
-#' @keywords 
-#' 
+#' @keywords Inovation algorithm, linear prediction
+#'
 #' @examples
 #' 
-#' @export
-#' @importFrom grDevices rgb2hsv
-#' @importFrom graphics par plot rect text
+#' #example from book
+#' 
+#' n <- matrix(c(0.125, 0.05,  0,     0,     0,
+#'               0.05,  0.125, 0.05,  0,     0,
+#'               0,     0.05,  0.125, 0.05,  0,
+#'               0,     0,     0.05,  0.125, 0.05,
+#'               0,     0,     0,     0.05,  0.125),
+#'               nrow = 5)
+#' result <- ina(n)
+#' result
+#' 
+#' #the actual solution
+#'  
+#' v <- (1+1/4)/100
+#' for (i in 2:5) {
+#'   v[i] <- (1+1/4-1/v[i-1]/4/100)/100
+#' }
+#' v-result$v
+#' 
+#' # another example
+#' 
+#' r <- 10
+#' n <- matrix(rnorm(r*r),nrow = r)
+#' ina(n)
 #'
+
+
+
+
+#
+# since method #1 is not acceptable for computation. we thus use method #2
+# the two inputs would be both strings with the coefficient.
+# the output would be just a string with lag=c(0:20)
+#
 
 
 #
@@ -64,29 +97,30 @@ ina <- function(k){
   )
 }
 
-1/10*(1+1/4)
-1/20
-n <- matrix(c(0.125, 0.05,  0,     0,     0,
-              0.05,  0.125, 0.05,  0,     0,
-              0,     0.05,  0.125, 0.05,  0,
-              0,     0,     0.05,  0.125, 0.05,
-              0,     0,     0,     0.05,  0.125),
-            nrow = 5)
-n
-result <- ina(n)
-result$v
-
-v <- (1+1/4)/100
-for (i in 2:5) {
-  v[i] <- (1+1/4-1/v[i-1]/4/100)/100
-}
-v
-result$theta
-v-result$v
+#1/10*(1+1/4)
+#1/20
+#n <- matrix(c(0.125, 0.05,  0,     0,     0,
+#              0.05,  0.125, 0.05,  0,     0,
+#              0,     0.05,  0.125, 0.05,  0,
+#              0,     0,     0.05,  0.125, 0.05,
+#              0,     0,     0,     0.05,  0.125),
+#            nrow = 5)
+#n
+#result <- ina(n)
+#result$v
+#result
+#
+#v <- (1+1/4)/100
+#for (i in 2:5) {
+# v[i] <- (1+1/4-1/v[i-1]/4/100)/100
+#}
+#v
+#result$theta
+#v-result$v
 
 r <- 10
 n <- matrix(rnorm(r*r),nrow = r)
-ina(n)$v
+ina(n)
 
 #
 # simulation of a gaussian process
@@ -96,6 +130,44 @@ ina(n)$v
 # the input is an autocovariance matrix k and 
 #     np be the # of observation points we want to simulated
 #
+
+
+#' @title Simulation of a Gaussian Process
+#'
+#' @description The function sgp() computes Simulation of a Gaussian process for given autocovariance matrix and desired number of steps.
+#' @description the input would be autocovariance matrix and the number of time steps.
+#' @description the output the estimated gaussian process.
+#'
+#' @param k autocovatiance matrix
+#' @param np the number of time steps we wnat to use
+#'
+#' @return coe       (coefficient of estimation from Z_1 to Z_n)
+#'
+#' @note this algorithm based on inovation algorithm and require the v (error) to be positive.
+#'
+#' @author Ankai Liu, \email{ankailiu@trentu.ca}
+#' @references Brockwell, P. J., & Davis, R. A. (2013). Time series: theory and methods. New York, NY: Springer. p271 8.16
+#' @seealso None
+#' @keywords estimation, guassian process
+#'
+#' @examples
+#'
+#' n <- matrix(c(0.125, 0.05,  0,     0,     0,
+#'               0.05,  0.125, 0.05,  0,     0,
+#'               0,     0.05,  0.125, 0.05,  0,
+#'               0,     0,     0.05,  0.125, 0.05,
+#'               0,     0,     0,     0.05,  0.125),
+#'             nrow = 5)
+#' sgp(n,4)
+#' 
+#' r <- 10
+#' k <- matrix(rnorm(r*r),nrow = r)
+#' sgp(k, r-1)
+#'
+#' @export
+#' @importFrom grDevices rgb2hsv
+#' @importFrom graphics par plot rect text
+#'
 
 sgp <- function(k, np) {
   stopifnot(is.numeric(k), is.numeric(np))
@@ -110,8 +182,14 @@ sgp <- function(k, np) {
   theta <- ina(k)$theta[,np]
   v <- ina(k)$v
   
+  if (sum(n <= 0) > 0) {
+    print("v=")
+    print(v)
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    warning("negative v, see inovation algorithm")
+  }
   
-  print(theta[(np - 1):1])
+  #print(theta[(np - 1):1])
   #print(v[1:(np)])
   coe <- theta[(np - 1):1] * v[1:(np - 1)]^(1/2)  
   
@@ -125,14 +203,14 @@ sgp <- function(k, np) {
 
 
 
-r <- 10
-k <- matrix(rnorm(r*r),nrow = r)
-sgp(k, r-1)
-
-n <- matrix(c(0.125, 0.05,  0,     0,     0,
-              0.05,  0.125, 0.05,  0,     0,
-              0,     0.05,  0.125, 0.05,  0,
-              0,     0,     0.05,  0.125, 0.05,
-              0,     0,     0,     0.05,  0.125),
-            nrow = 5)
-sgp(n,4)
+#r <- 10
+#k <- matrix(rnorm(r*r),nrow = r)
+#sgp(k, r-1)
+#
+#n <- matrix(c(0.125, 0.05,  0,     0,     0,
+#              0.05,  0.125, 0.05,  0,     0,
+#              0,     0.05,  0.125, 0.05,  0,
+#              0,     0,     0.05,  0.125, 0.05,
+#              0,     0,     0,     0.05,  0.125),
+#           nrow = 5)
+#sgp(n,4)
