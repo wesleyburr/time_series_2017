@@ -1,4 +1,4 @@
-#' @title the Innovation Algoritghm and simulation of Gaussian process
+#' @title the Innovation Algoritghm 
 #'
 #' @description The function ina() computes coefficient of the prediction of n+1 step as linear sun of 0 to n steps.
 #' @description The input require autocovariance matrix
@@ -134,12 +134,12 @@ ina(n)
 
 #' @title Simulation of a Gaussian Process
 #'
-#' @description The function sgp() computes Simulation of a Gaussian process for given autocovariance matrix and desired number of steps.
-#' @description the input would be autocovariance matrix and the number of time steps.
+#' @description The function sgp() computes Simulation of a Gaussian process for given autocovariance matrix and number of observation.
+#' @description the input would be autocovariance matrix and the number of observation.
 #' @description the output the estimated gaussian process.
 #'
 #' @param k autocovatiance matrix
-#' @param np the number of time steps we wnat to use
+#' @param np the number of observation of X
 #'
 #' @return coe       (coefficient of estimation from Z_1 to Z_n)
 #'
