@@ -19,23 +19,34 @@ myacv <- function(x, maxlag) {
   maxlag <- abs(maxlag)
   n <- length(x)
   mean <- sum(x)/n
+  gamma <- c()
   #
   # for maxlag=0 we return variance
   #
-  if (maxlag==0) {
-    return((sum((x-mean)*(x-mean))/n))
+  for (i in c(0:maxlag)){
+    if (i==0) {
+      gamma <- (sum((x-mean)*(x-mean))/n)
+    }
+    gamma <- c(gamma,sum((x[-c(1:i)]-mean)*(x[-c(n:(n-i+1))]-mean))/n)
   }
-  gamma <- sum((x[-c(1:maxlag)]-mean)*(x[-c(n:(n-maxlag+1))]-mean))/n
   return(gamma)
 }
 
 # call
-x <- c(1:5)
 x <- rnorm(1000)
-myacv(x,0)
-myacv(x,2)
-myacv(x,1)
-(built_in_cv <- acf(x, type = "covariance"))
+gamma <- myacv(x,0)
+gamma
+gamma <- myacv(x,2)
+gamma
+gamma <- myacv(x,10)
+gamma
+
+
+k <- c()
+for (i in c(0:10)){
+  k <- c(k,i)
+}
+k
 #
 # autocorelation
 #
@@ -59,19 +70,26 @@ myacf <- function(x, maxlag) {
   maxlag <- abs(maxlag)
   n <- length(x)
   mean <- sum(x)/n
-  rho <- (sum((x[-c(1:maxlag)]-mean)*(x[-c(n:(n-maxlag+1))]-mean))/n)/(sum((x-mean)*(x-mean))/n)
+  rho <- c()
+  for (i in c(0:maxlag)){
+    rho <- c(rho,(sum((x[-c(1:i)]-mean)*(x[-c(n:(n-i+1))]-mean))/n)/(sum((x-mean)*(x-mean))/n))
+  }
   return(rho)
 }
 # call
 x <- c(1:5)
 x <- rnorm(1000)
-myacf(x,0)
-myacf(x,1)
-myacf(x,2)
-myacf(x,3)
-myacf(x,-3.8)
-(built_in_cr <- acf(x, type = "correlation") )
-
+rho <- myacf(x,0)
+rho
+rho <- myacf(x,1)
+rho
+rho <- myacf(x,2)
+rho
+rho <- myacf(x,30)
+rho
+rho <- myacf(x,-3.8)
+rho
+plot(rho,type = "h")
 
 
 
